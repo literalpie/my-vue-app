@@ -4,7 +4,14 @@ import {
   flexRender,
   createColumnHelper,
 } from "@tanstack/react-table";
-import "./App.css";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 type Project = {
   title: string;
@@ -35,7 +42,7 @@ const data: Project[] = [
   },
 ];
 const columnHelper = createColumnHelper<Project>();
-export const ManualTable = () => {
+export const ShadTable = () => {
   const table = useReactTable({
     data,
     columns: [
@@ -46,36 +53,36 @@ export const ManualTable = () => {
     getCoreRowModel: getCoreRowModel(),
   });
   return (
-    <table className="table">
-      <thead>
+    <Table>
+      <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
-          <tr key={headerGroup.id}>
+          <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => (
-              <th key={header.id}>
+              <TableHead key={header.id}>
                 {header.isPlaceholder
                   ? null
                   : flexRender(
                       header.column.columnDef.header,
                       header.getContext()
                     )}
-              </th>
+              </TableHead>
             ))}
-          </tr>
+          </TableRow>
         ))}
-      </thead>
-      <tbody>
+      </TableHeader>
+      <TableBody>
         {table.getRowModel().rows.map((row) => {
           return (
-            <tr key={row.id}>
+            <TableRow key={row.id}>
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id}>
+                <TableCell key={cell.id}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
+                </TableCell>
               ))}
-            </tr>
+            </TableRow>
           );
         })}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
   );
 };

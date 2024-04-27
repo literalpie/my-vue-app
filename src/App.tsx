@@ -2,14 +2,29 @@ import { useState } from "react";
 import { ManualTable } from "./DaisyTable";
 import { ShadTable } from "./ShadTable";
 import { ReusableTable } from "./ReusableTable";
-import { data } from "./shared/data";
 import { SortingState, createColumnHelper } from "@tanstack/react-table";
-import { Project } from "./shared/types";
 import { cn } from "./lib/utils";
+import { Octokit } from "@octokit/rest";
+import {
+  useQuery,
+  QueryClientProvider,
+  QueryClient,
+} from "@tanstack/react-query";
 
+const queryClient = new QueryClient();
 const ReusableTableWithStuff = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const columnHelper = createColumnHelper<Project>();
+  const columnHelper = createColumnHelper<{
+    id: number;
+    name: string;
+    full_name: string;
+  }>();
+  const { data, isLoading } = useQuery({
+    queryKey: ["storybook-repos"],
+    queryFn: () => {
+      return new Octokit().rest.repos.listForOrg({ org: "storybookjs" });
+    },
+  });
   return (
     <>
       <div>
@@ -25,13 +40,13 @@ const ReusableTableWithStuff = () => {
       <ReusableTable
         sorting={sorting}
         onSortingChange={setSorting}
-        data={data}
+        data={(data?.data && [...data.data, ...data.data, ...data.data]) || []}
         columns={[
-          columnHelper.accessor("title", {
+          columnHelper.accessor("name", {
             cell: (cell) => <b>{cell.getValue()}</b>,
           }),
-          columnHelper.accessor("author", {}),
-          columnHelper.accessor("stars", {}),
+          columnHelper.accessor("id", {}),
+          columnHelper.accessor("full_name", {}),
         ]}
       />
     </>
@@ -79,7 +94,9 @@ function App() {
           Radix
         </a>
       </div>
-      <div className="pt-4">{getTable(activeTab)}</div>
+      <QueryClientProvider client={queryClient}>
+        <div className="pt-4">{getTable(activeTab)}</div>
+      </QueryClientProvider>
     </div>
   );
 }

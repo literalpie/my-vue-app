@@ -2,23 +2,35 @@ import { Project } from "./types";
 
 export const data: Project[] = [
   {
-    author: "Ben",
-    title: "storybook-addon-rtl",
-    stars: 5,
+    id: 1,
+    title: "some random thing",
   },
   {
-    author: "Storybook",
-    title: "storybook-addon-knobs",
-    stars: 2859,
+    id: 3,
+    title: "some random thing again",
   },
   {
-    author: "literalpie",
-    title: "squatAR",
-    stars: 1,
+    id: 7,
+    title: "Ben is cool",
   },
   {
-    author: "literalpie",
-    title: "memorypie",
-    stars: 8,
+    id: 74,
+    title: "How is it going?",
+  },
+  {
+    id: 43,
+    title: "Just typing random things",
+  },
+  {
+    id: 72,
+    title: "mock data is boring",
+  },
+  {
+    id: 29,
+    title: "hi",
+  },
+  {
+    id: 94,
+    title: "some random thing yo",
   },
 ];

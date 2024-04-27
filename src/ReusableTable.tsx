@@ -7,6 +7,7 @@ import {
   SortingState,
   OnChangeFn,
   Row,
+  TableState,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import React from "react";
@@ -18,12 +19,20 @@ export const ReusableTable = <T,>({
   columns,
   sorting,
   onSortingChange,
+  totalCount,
+  fetchMore,
 }: {
   data: T[];
   sorting?: SortingState;
   onSortingChange?: OnChangeFn<SortingState>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: ColumnDef<T, any>[];
+  totalCount?: number;
+  // Should this just give access to all virtualizer stuff? probably not
+  fetchMore?: (info: {
+    range: { startIndex: number; endIndex: number };
+    tableState: TableState;
+  }) => void;
 }) => {
   const table = useReactTable({
     getCoreRowModel: getCoreRowModel(),
@@ -59,19 +68,30 @@ export const ReusableTable = <T,>({
   const parentRef = React.useRef<HTMLDivElement>(null);
 
   const virtualizer = useVirtualizer({
-    count: data.length,
+    count: totalCount ?? data.length,
     estimateSize: () => 45,
     getScrollElement: () => parentRef.current,
+    overscan: 4,
+    onChange: (change) => {
+      if (change.range?.endIndex && change.range?.endIndex + 5 > data.length) {
+        fetchMore?.({ range: change.range, tableState: table.getState() });
+      }
+    },
   });
+
   return (
     <div ref={parentRef} style={{ height: "200px", overflow: "auto" }}>
       <div style={{ height: `${virtualizer.getTotalSize()}px` }}>
         <table className="table">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
+              <tr key={headerGroup.id} style={{ display: "flex" }}>
                 {headerGroup.headers.map((header) => (
                   <th
+                    style={{
+                      flexBasis: header.column.getSize(),
+                      flexGrow: 1,
+                    }}
                     key={header.id}
                     onClick={() =>
                       table.setSorting((prevSort) => [
@@ -101,16 +121,23 @@ export const ReusableTable = <T,>({
 
               return (
                 <tr
-                  key={row.id}
+                  key={row?.id}
                   style={{
+                    display: "flex",
                     height: `${virtualRow.size}px`,
                     transform: `translateY(${
                       virtualRow.start - index * virtualRow.size
                     }px)`,
                   }}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id}>
+                  {row?.getVisibleCells().map((cell) => (
+                    <td
+                      key={cell.id}
+                      style={{
+                        flexBasis: cell.column.getSize(),
+                        flexGrow: 1,
+                      }}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

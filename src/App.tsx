@@ -6,25 +6,66 @@ import { SortingState, createColumnHelper } from "@tanstack/react-table";
 import { cn } from "./lib/utils";
 import { Octokit } from "@octokit/rest";
 import {
-  useQuery,
   QueryClientProvider,
   QueryClient,
+  useInfiniteQuery,
 } from "@tanstack/react-query";
+import { data as fakeData } from "./shared/data";
 
+const useTableData = (useRealData: boolean = false) => {
+  const {
+    data: realData,
+    fetchNextPage,
+    isLoading,
+    isFetching,
+    isFetchingNextPage,
+  } = useInfiniteQuery<{
+    data: { id: number; title: string }[];
+    pageNumber: number;
+  }>({
+    enabled: useRealData,
+    queryKey: ["infinite-repos"],
+    initialData: { pageParams: [], pages: [] },
+    getNextPageParam: (lastPage) => {
+      return (lastPage?.pageNumber ?? 0) + 1;
+    },
+    queryFn: async (context) => {
+      const pageNumber = context.pageParam as number;
+      const result = await octokit.request("GET /repos/{owner}/{repo}/issues", {
+        owner: "BuilderIO",
+        repo: "qwik",
+        per_page: 50,
+        page: pageNumber,
+      });
+      return { data: result.data, pageNumber };
+    },
+    initialPageParam: 1,
+  });
+  const allData = useRealData
+    ? realData.pages.flatMap((page) => page.data)
+    : fakeData;
+
+  return {
+    data: allData,
+    fetchNextPage: () => {
+      if (useRealData && !isLoading && !isFetching && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+  };
+};
+
+const useReal = false;
+const octokit = new Octokit();
 const queryClient = new QueryClient();
 const ReusableTableWithStuff = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const columnHelper = createColumnHelper<{
     id: number;
-    name: string;
-    full_name: string;
+    title: string;
   }>();
-  const { data, isLoading } = useQuery({
-    queryKey: ["storybook-repos"],
-    queryFn: () => {
-      return new Octokit().rest.repos.listForOrg({ org: "storybookjs" });
-    },
-  });
+  const { data } = useTableData(useReal);
+
   return (
     <>
       <div>
@@ -38,15 +79,16 @@ const ReusableTableWithStuff = () => {
         Sort by Author Ascending
       </button>
       <ReusableTable
+        fetchMore={() => {}}
+        totalCount={useReal ? 400 : data.length}
         sorting={sorting}
         onSortingChange={setSorting}
-        data={(data?.data && [...data.data, ...data.data, ...data.data]) || []}
+        data={data}
         columns={[
-          columnHelper.accessor("name", {
+          columnHelper.accessor("title", {
             cell: (cell) => <b>{cell.getValue()}</b>,
           }),
-          columnHelper.accessor("id", {}),
-          columnHelper.accessor("full_name", {}),
+          columnHelper.accessor("id", { size: 100 }),
         ]}
       />
     </>

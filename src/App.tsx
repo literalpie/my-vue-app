@@ -88,13 +88,29 @@ const ReusableTableWithStuff = () => {
           columnHelper.accessor("title", {
             cell: (cell) => <b>{cell.getValue()}</b>,
             header: () => "The Title",
+            meta: {
+              flexSizing: {
+                grow: 3,
+                maxSize: 500,
+                shrink: 0,
+              },
+            },
+            size: 300,
             sortingFn: (first, second) =>
               first.getValue<string>("title").length -
               second.getValue<string>("title").length,
           }),
           columnHelper.accessor("id", { size: 100, header: () => "ID 0" }),
           columnHelper.accessor("id", {
-            size: 100,
+            meta: {
+              flexSizing: {
+                grow: 0,
+                maxSize: 300,
+                minSize: 50,
+                shrink: 1,
+              },
+            },
+            size: 200,
             header: () => "ID 1",
             id: "id1",
           }),

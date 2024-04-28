@@ -15,6 +15,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import React, { createContext, useContext } from "react";
 
 import { useState } from "react";
+import { FlexSizingFeature } from "./flexSizingFeature";
 
 /** Only the rendering of a basic table - all state must be managed outside and passed in. */
 export const TableDisplay = <T,>({
@@ -59,8 +60,10 @@ export const TableDisplay = <T,>({
                   <th
                     style={{
                       flexBasis: header.column.getSize(),
-                      flexGrow: 1,
-                      flexShrink: 0,
+                      flexGrow: header.column.getFlexSizing().grow,
+                      flexShrink: header.column.getFlexSizing().shrink,
+                      maxWidth: header.column.getFlexSizing().maxSize,
+                      minWidth: header.column.getFlexSizing().minSize,
                       display: "flex",
                       flexDirection: "row",
                       justifyContent: "space-between",
@@ -118,8 +121,10 @@ export const TableDisplay = <T,>({
                       key={cell.id}
                       style={{
                         flexBasis: cell.column.getSize(),
-                        flexGrow: 1,
-                        flexShrink: 0,
+                        flexGrow: cell.column.getFlexSizing().grow,
+                        flexShrink: cell.column.getFlexSizing().shrink,
+                        maxWidth: cell.column.getFlexSizing().maxSize,
+                        minWidth: cell.column.getFlexSizing().minSize,
                       }}
                     >
                       {flexRender(
@@ -174,8 +179,10 @@ export const ReusableTable = <T,>({
     range: { startIndex: number; endIndex: number };
     tableState: TableState;
   }) => void;
+  // defaultColumn would be good.
 }) => {
   const table = useReactTable({
+    _features: [FlexSizingFeature],
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),

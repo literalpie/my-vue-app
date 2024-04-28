@@ -16,6 +16,12 @@ import React, { createContext, useContext } from "react";
 
 import { useState } from "react";
 import { FlexSizingFeature } from "./flexSizingFeature";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "./components/ui/popover";
+import { cn } from "./lib/utils";
 
 /** Only the rendering of a basic table - all state must be managed outside and passed in. */
 export const TableDisplay = <T,>({
@@ -160,6 +166,94 @@ export const TableFilterInput = () => {
   );
 };
 
+function arrayMove<T>(array: T[], from: number, to: number): T[] {
+  const newArray = array.slice();
+  newArray.splice(
+    to < 0 ? newArray.length + to : to,
+    0,
+    newArray.splice(from, 1)[0]
+  );
+
+  return newArray;
+}
+
+export const ColumnConfiguration = () => {
+  const table = useContext(TableContext);
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button className="btn">Manage Columns</button>
+      </PopoverTrigger>
+      <PopoverContent className="w-60">
+        <ul>
+          {table.getState().columnOrder.map((columnId) => {
+            const column = table.getColumn(columnId)!;
+            return (
+              <li>
+                <div className={cn("flex justify-between")}>
+                  <div>
+                    <input
+                      type="checkbox"
+                      checked={column.getIsVisible()}
+                      onChange={() => column.toggleVisibility()}
+                    />{" "}
+                    {flexRender(
+                      column.columnDef.header,
+                      // There's probably a better way to get the header context for this
+                      table
+                        .getLeafHeaders()
+                        .find((h) => h.column.id === column.id)!
+                        .getContext()
+                    )}
+                  </div>
+                  <div>
+                    <button
+                      className="btn btn-sm"
+                      onClick={() => {
+                        table.setColumnOrder((oldOrder) => {
+                          const oldPosition = oldOrder.indexOf(column.id);
+                          if (oldPosition >= 1) {
+                            return arrayMove(
+                              oldOrder,
+                              oldPosition,
+                              oldPosition - 1
+                            );
+                          }
+                          return oldOrder;
+                        });
+                      }}
+                    >
+                      up
+                    </button>{" "}
+                    <button
+                      className="btn btn-sm"
+                      onClick={() => {
+                        table.setColumnOrder((oldOrder) => {
+                          const oldPosition = oldOrder.indexOf(column.id);
+                          if (oldPosition + 1 < oldOrder.length) {
+                            return arrayMove(
+                              oldOrder,
+                              oldPosition,
+                              oldPosition + 1
+                            );
+                          }
+                          return oldOrder;
+                        });
+                      }}
+                    >
+                      down
+                    </button>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
 export const ReusableTable = <T,>({
   data,
   columns,
@@ -192,6 +286,8 @@ export const ReusableTable = <T,>({
   });
   const [state, setState] = useState({
     ...table.initialState,
+    // is there a better way to get IDs without requiring user to set ID?
+    columnOrder: columns.map((c) => c.id).filter(Boolean) as string[],
     sorting: sorting ?? table.initialState.sorting,
     // other passed-in state
   });
@@ -219,7 +315,10 @@ export const ReusableTable = <T,>({
   return (
     <TableContext.Provider value={table as Table<unknown>}>
       <div>
-        <TableFilterInput />
+        <div className="flex justify-end">
+          <ColumnConfiguration />
+          <TableFilterInput />
+        </div>
         <TableDisplay
           table={table}
           totalCount={totalCount}

@@ -86,6 +86,7 @@ const ReusableTableWithStuff = () => {
         data={data}
         columns={[
           columnHelper.accessor("title", {
+            id: "title",
             cell: (cell) => <b>{cell.getValue()}</b>,
             header: () => "The Title",
             meta: {
@@ -100,7 +101,11 @@ const ReusableTableWithStuff = () => {
               first.getValue<string>("title").length -
               second.getValue<string>("title").length,
           }),
-          columnHelper.accessor("id", { size: 100, header: () => "ID 0" }),
+          columnHelper.accessor("id", {
+            size: 100,
+            header: () => "ID 0",
+            id: "yo",
+          }),
           columnHelper.accessor("id", {
             meta: {
               flexSizing: {

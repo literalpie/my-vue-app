@@ -8,25 +8,21 @@ import {
   OnChangeFn,
   Row,
   TableState,
+  Table,
+  getFilteredRowModel,
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import React from "react";
+import React, { createContext, useContext } from "react";
 
 import { useState } from "react";
 
-export const ReusableTable = <T,>({
-  data,
-  columns,
-  sorting,
-  onSortingChange,
+/** Only the rendering of a basic table - all state must be managed outside and passed in. */
+export const TableDisplay = <T,>({
+  table,
   totalCount,
   fetchMore,
 }: {
-  data: T[];
-  sorting?: SortingState;
-  onSortingChange?: OnChangeFn<SortingState>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  columns: ColumnDef<T, any>[];
+  table: Table<T>;
   totalCount?: number;
   // Should this just give access to all virtualizer stuff? probably not
   fetchMore?: (info: {
@@ -34,46 +30,19 @@ export const ReusableTable = <T,>({
     tableState: TableState;
   }) => void;
 }) => {
-  const table = useReactTable({
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    data,
-    columns,
-  });
-  const [state, setState] = useState({
-    ...table.initialState,
-    sorting: sorting ?? table.initialState.sorting,
-    // other passed-in state
-  });
-  /** The current state of the table, including state that comes from props */
-  const mergedState = {
-    ...table.getState(),
-    sorting: sorting ?? state.sorting ?? table.initialState.sorting,
-  };
-
-  table.setOptions((prev) => ({
-    ...prev,
-    state: mergedState,
-    onStateChange: (stateChange) => {
-      const newState =
-        typeof stateChange === "function"
-          ? stateChange(mergedState)
-          : stateChange;
-      onSortingChange?.(newState.sorting);
-      setState(newState);
-    },
-  }));
   const { rows } = table.getRowModel();
-
   const parentRef = React.useRef<HTMLDivElement>(null);
 
   const virtualizer = useVirtualizer({
-    count: totalCount ?? data.length,
+    count: totalCount ?? table.getRowCount(),
     estimateSize: () => 45,
     getScrollElement: () => parentRef.current,
     overscan: 4,
     onChange: (change) => {
-      if (change.range?.endIndex && change.range?.endIndex + 5 > data.length) {
+      if (
+        change.range?.endIndex &&
+        change.range?.endIndex + 5 > table.getRowCount()
+      ) {
         fetchMore?.({ range: change.range, tableState: table.getState() });
       }
     },
@@ -151,5 +120,89 @@ export const ReusableTable = <T,>({
         </table>
       </div>
     </div>
+  );
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const TableContext = createContext<Table<unknown>>(undefined as any);
+
+export const TableFilterInput = () => {
+  const table = useContext(TableContext);
+  return (
+    <label className="input input-bordered flex items-center gap-2 m-2 max-w-md">
+      Filter:
+      <input
+        type="text"
+        value={table.getState().globalFilter}
+        onChange={(change) => table.setGlobalFilter(change.target.value)}
+      />
+    </label>
+  );
+};
+
+export const ReusableTable = <T,>({
+  data,
+  columns,
+  sorting,
+  onSortingChange,
+  totalCount,
+  fetchMore,
+}: {
+  data: T[];
+  sorting?: SortingState;
+  onSortingChange?: OnChangeFn<SortingState>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  columns: ColumnDef<T, any>[];
+  totalCount?: number;
+  // Should this just give access to all virtualizer stuff? probably not
+  fetchMore?: (info: {
+    range: { startIndex: number; endIndex: number };
+    tableState: TableState;
+  }) => void;
+}) => {
+  const table = useReactTable({
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    data,
+    columns,
+  });
+  const [state, setState] = useState({
+    ...table.initialState,
+    sorting: sorting ?? table.initialState.sorting,
+    // other passed-in state
+  });
+  /** The current state of the table, including state that comes from props */
+  const mergedState: TableState = {
+    ...table.initialState,
+    ...table.getState(),
+    ...state,
+    sorting: sorting ?? state.sorting ?? table.initialState.sorting,
+  };
+
+  table.setOptions((prev) => ({
+    ...prev,
+    state: mergedState,
+    onStateChange: (stateChange) => {
+      const newState =
+        typeof stateChange === "function"
+          ? stateChange(mergedState)
+          : stateChange;
+      onSortingChange?.(newState.sorting);
+      setState(newState);
+    },
+  }));
+
+  return (
+    <TableContext.Provider value={table as Table<unknown>}>
+      <div>
+        <TableFilterInput />
+        <TableDisplay
+          table={table}
+          totalCount={totalCount}
+          fetchMore={fetchMore}
+        />
+      </div>
+    </TableContext.Provider>
   );
 };

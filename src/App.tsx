@@ -74,9 +74,9 @@ const ReusableTableWithStuff = () => {
       </div>
       <button
         className="btn"
-        onClick={() => setSorting([{ id: "author", desc: false }])}
+        onClick={() => setSorting([{ id: "title", desc: false }])}
       >
-        Sort by Author Ascending
+        Sort by Title Ascending
       </button>
       <ReusableTable
         fetchMore={() => {}}
@@ -87,8 +87,12 @@ const ReusableTableWithStuff = () => {
         columns={[
           columnHelper.accessor("title", {
             cell: (cell) => <b>{cell.getValue()}</b>,
+            header: () => "The Title",
+            sortingFn: (first, second) =>
+              first.getValue<string>("title").length -
+              second.getValue<string>("title").length,
           }),
-          columnHelper.accessor("id", { size: 100 }),
+          columnHelper.accessor("id", { size: 100, header: () => "The ID" }),
         ]}
       />
     </>

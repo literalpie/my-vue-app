@@ -9,13 +9,14 @@ import {
   Table,
   getFilteredRowModel,
 } from "@tanstack/react-table";
-import { createContext } from "react";
+import { ReactNode, createContext } from "react";
 
 import { useState } from "react";
 import { FlexSizingFeature } from "../flexSizingFeature";
 import { TableFilterInput } from "./TableFilterInput";
 import { ColumnConfiguration } from "./ColumnConfiguration";
 import { TableDisplay } from "./TableDisplay";
+import { SelectionActions } from "./SelectionActions";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const TableContext = createContext<Table<unknown>>(undefined as any);
@@ -27,6 +28,7 @@ export const ReusableTable = <T,>({
   onSortingChange,
   totalCount,
   fetchMore,
+  selectionActionsRenderer,
 }: {
   data: T[];
   sorting?: SortingState;
@@ -40,6 +42,7 @@ export const ReusableTable = <T,>({
     tableState: TableState;
   }) => void;
   // defaultColumn would be good.
+  selectionActionsRenderer?: (selectedRowIds: string[]) => ReactNode;
 }) => {
   const table = useReactTable({
     _features: [FlexSizingFeature],
@@ -82,6 +85,7 @@ export const ReusableTable = <T,>({
     <TableContext.Provider value={table as Table<unknown>}>
       <div>
         <div className="flex justify-end">
+          <SelectionActions actionsRenderer={selectionActionsRenderer} />
           <ColumnConfiguration />
           <TableFilterInput />
         </div>

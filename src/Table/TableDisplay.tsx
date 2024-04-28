@@ -75,12 +75,14 @@ export const TableDisplay = <T,>({
                             header.getContext()
                           )}
                     </div>
-                    <div
-                      style={{ cursor: "col-resize" }}
-                      onMouseDown={header.getResizeHandler()}
-                    >
-                      I
-                    </div>
+                    {header.column.getCanResize() && (
+                      <div
+                        style={{ cursor: "col-resize" }}
+                        onMouseDown={header.getResizeHandler()}
+                      >
+                        I
+                      </div>
+                    )}
                   </th>
                 ))}
               </tr>

@@ -4,6 +4,7 @@ import { SortingState, createColumnHelper } from "@tanstack/react-table";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Octokit } from "@octokit/rest";
 import { data as fakeData } from "./shared/data";
+import { selectionColumn } from "./Table/selectionColumn";
 
 const useReal = false;
 const octokit = new Octokit();
@@ -57,7 +58,7 @@ export const AppTable = () => {
     id: number;
     title: string;
   }>();
-  const { data } = useTableData(useReal);
+  const { data, fetchNextPage } = useTableData(useReal);
 
   return (
     <>
@@ -72,12 +73,16 @@ export const AppTable = () => {
         Sort by Title Ascending
       </button>
       <ReusableTable
-        fetchMore={() => {}}
+        selectionActionsRenderer={(rows) => (
+          <button className="btn">Delete {rows.join(", ")}</button>
+        )}
+        fetchMore={fetchNextPage}
         totalCount={useReal ? 400 : data.length}
         sorting={sorting}
         onSortingChange={setSorting}
         data={data}
         columns={[
+          selectionColumn,
           columnHelper.accessor("title", {
             id: "title",
             cell: (cell) => <b>{cell.getValue()}</b>,

@@ -60,25 +60,39 @@ export const TableDisplay = <T,>({
                     style={{
                       flexBasis: header.column.getSize(),
                       flexGrow: 1,
+                      flexShrink: 0,
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
                     }}
                     key={header.id}
-                    onClick={() =>
-                      table.setSorting((prevSort) => [
-                        {
-                          id: header.id,
-                          desc:
-                            prevSort?.[0]?.id === header.id &&
-                            !prevSort?.[0]?.desc,
-                        },
-                      ])
-                    }
                   >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                    <div
+                      style={{ cursor: "pointer" }}
+                      onClick={() =>
+                        table.setSorting((prevSort) => [
+                          {
+                            id: header.id,
+                            desc:
+                              prevSort?.[0]?.id === header.id &&
+                              !prevSort?.[0]?.desc,
+                          },
+                        ])
+                      }
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </div>
+                    <div
+                      style={{ cursor: "col-resize" }}
+                      onMouseDown={header.getResizeHandler()}
+                    >
+                      I
+                    </div>
                   </th>
                 ))}
               </tr>
@@ -105,6 +119,7 @@ export const TableDisplay = <T,>({
                       style={{
                         flexBasis: cell.column.getSize(),
                         flexGrow: 1,
+                        flexShrink: 0,
                       }}
                     >
                       {flexRender(
@@ -133,7 +148,7 @@ export const TableFilterInput = () => {
       Filter:
       <input
         type="text"
-        value={table.getState().globalFilter}
+        value={table.getState().globalFilter ?? ""}
         onChange={(change) => table.setGlobalFilter(change.target.value)}
       />
     </label>
@@ -164,6 +179,7 @@ export const ReusableTable = <T,>({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    columnResizeMode: "onChange",
     data,
     columns,
   });

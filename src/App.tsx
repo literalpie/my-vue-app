@@ -92,7 +92,27 @@ const ReusableTableWithStuff = () => {
               first.getValue<string>("title").length -
               second.getValue<string>("title").length,
           }),
-          columnHelper.accessor("id", { size: 100, header: () => "The ID" }),
+          columnHelper.accessor("id", { size: 100, header: () => "ID 0" }),
+          columnHelper.accessor("id", {
+            size: 100,
+            header: () => "ID 1",
+            id: "id1",
+          }),
+          columnHelper.accessor("id", {
+            size: 100,
+            header: () => "ID 2",
+            id: "id2",
+          }),
+          columnHelper.accessor("id", {
+            size: 100,
+            header: () => "ID 3",
+            id: "id3",
+          }),
+          columnHelper.accessor("id", {
+            size: 100,
+            header: () => "ID 4",
+            id: "id4",
+          }),
         ]}
       />
     </>

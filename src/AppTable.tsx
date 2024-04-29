@@ -6,7 +6,7 @@ import { Octokit } from "@octokit/rest";
 import { data as fakeData } from "./shared/data";
 import { selectionColumn } from "./Table/selectionColumn";
 
-const useReal = false;
+const useReal = true;
 const octokit = new Octokit();
 
 const useTableData = (useRealData: boolean = false) => {
@@ -29,8 +29,8 @@ const useTableData = (useRealData: boolean = false) => {
     queryFn: async (context) => {
       const pageNumber = context.pageParam as number;
       const result = await octokit.request("GET /repos/{owner}/{repo}/issues", {
-        owner: "BuilderIO",
-        repo: "qwik",
+        owner: "storybookjs",
+        repo: "storybook",
         per_page: 50,
         page: pageNumber,
       });
@@ -102,7 +102,7 @@ export const AppTable = () => {
                 },
               ],
             },
-            size: 300,
+            size: 600,
             sortingFn: (first, second) =>
               first.getValue<string>("title").length -
               second.getValue<string>("title").length,

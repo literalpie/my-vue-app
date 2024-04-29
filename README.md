@@ -1,30 +1,13 @@
-# React + TypeScript + Vite
+# Reusable Tanstack Table
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is just a POC/playground for trying out some ways to make a sharable component out of the tanstack table. It supports things like:
 
-Currently, two official plugins are available:
+- Controlled or uncontrolled sorting state
+- Modular components for setting filtering and column order state
+- Custom features for flex-sizing of columns and adding actions to each cell
+- Column resizing (cannot be used with flex-sizing)
+- Virtual Scrolling
+- A drop-in selection column
+- A "Selection Actions" component that can perform actions on the currently selected rows
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/literalpie/reusable-tanstack-table)

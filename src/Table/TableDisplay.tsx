@@ -40,7 +40,6 @@ export const TableDisplay = <T,>({
       }
     },
   });
-  console.log(table.getColumn("title")?.cellActions);
 
   return (
     <div ref={parentRef} style={{ height: "200px", overflow: "auto" }}>

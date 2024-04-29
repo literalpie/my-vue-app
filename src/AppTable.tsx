@@ -62,16 +62,18 @@ export const AppTable = () => {
 
   return (
     <>
-      <div>
-        Sorting {sorting[0]?.id ?? "No Column"} in{" "}
-        {sorting[0]?.desc ? "Descending" : "Ascending"} order
+      <div className="px-2">
+        <div>
+          Sorting {sorting[0]?.id ?? "No Column"} in{" "}
+          {sorting[0]?.desc ? "Descending" : "Ascending"} order
+        </div>
+        <button
+          className="btn"
+          onClick={() => setSorting([{ id: "title", desc: false }])}
+        >
+          Sort by Title Ascending
+        </button>
       </div>
-      <button
-        className="btn"
-        onClick={() => setSorting([{ id: "title", desc: false }])}
-      >
-        Sort by Title Ascending
-      </button>
       <ReusableTable
         selectionActionsRenderer={(rows) => (
           <button className="btn">Delete {rows.join(", ")}</button>
@@ -88,17 +90,17 @@ export const AppTable = () => {
             cell: (cell) => <b>{cell.getValue()}</b>,
             header: () => "The Title",
             meta: {
+              //// flexSizing is a custom feature to allow columns to grow nicely to fill space,
+              //// but it doesn't work well with resizing.
+              // flexSizing: {
+              //   grow: 1,
+              // },
               cellActions: [
                 {
                   label: "Log",
                   action: (cell) => console.log("cell action", cell.getValue()),
                 },
               ],
-              flexSizing: {
-                grow: 3,
-                maxSize: 500,
-                shrink: 0,
-              },
             },
             size: 300,
             sortingFn: (first, second) =>
@@ -111,14 +113,6 @@ export const AppTable = () => {
             id: "yo",
           }),
           columnHelper.accessor("id", {
-            meta: {
-              flexSizing: {
-                grow: 0,
-                maxSize: 300,
-                minSize: 50,
-                shrink: 1,
-              },
-            },
             size: 200,
             header: () => "ID 1",
             id: "id1",

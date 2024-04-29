@@ -11,7 +11,7 @@ export interface FlexSizingColumn {
   getFlexSizing: () => FlexSizingState;
 }
 export interface FlexSizingColumnMeta {
-  flexSizing: Partial<FlexSizingState>;
+  flexSizing?: Partial<FlexSizingState>;
 }
 
 declare module "@tanstack/react-table" {
@@ -23,12 +23,14 @@ declare module "@tanstack/react-table" {
 }
 
 const defaultFlexSizingState: FlexSizingState = {
-  grow: 1,
+  grow: 0,
   shrink: 0,
-  maxSize: 400,
+  maxSize: 2000,
   minSize: 100,
 };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+// This lets you give columns max/min sizes and have them behave like CSS flex.
+// If using this feature, you probably shouldn't allow user resizing because things get weird.
 export const FlexSizingFeature: TableFeature<unknown> = {
   createColumn: (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

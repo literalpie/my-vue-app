@@ -1,6 +1,13 @@
-import { flexRender, Row, TableState, Table } from "@tanstack/react-table";
+import {
+  flexRender,
+  Row,
+  TableState,
+  Table,
+  Cell,
+} from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import React from "react";
+import { CellActions } from "./CellActions";
 
 /** Only the rendering of a table - all state must be managed outside and passed in. */
 export const TableDisplay = <T,>({
@@ -33,6 +40,7 @@ export const TableDisplay = <T,>({
       }
     },
   });
+  console.log(table.getColumn("title")?.cellActions);
 
   return (
     <div ref={parentRef} style={{ height: "200px", overflow: "auto" }}>
@@ -107,6 +115,7 @@ export const TableDisplay = <T,>({
                     <td
                       key={cell.id}
                       style={{
+                        display: "flex",
                         flexBasis: cell.column.getSize(),
                         flexGrow: cell.column.getFlexSizing().grow,
                         flexShrink: cell.column.getFlexSizing().shrink,
@@ -117,6 +126,9 @@ export const TableDisplay = <T,>({
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
+                      )}
+                      {(cell.column.cellActions?.length ?? 0) > 0 && (
+                        <CellActions cell={cell as Cell<unknown, unknown>} />
                       )}
                     </td>
                   ))}

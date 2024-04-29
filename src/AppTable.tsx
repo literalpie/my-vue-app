@@ -88,6 +88,12 @@ export const AppTable = () => {
             cell: (cell) => <b>{cell.getValue()}</b>,
             header: () => "The Title",
             meta: {
+              cellActions: [
+                {
+                  label: "Log",
+                  action: (cell) => console.log("cell action", cell.getValue()),
+                },
+              ],
               flexSizing: {
                 grow: 3,
                 maxSize: 500,

@@ -12,11 +12,12 @@ import {
 import { ReactNode, createContext } from "react";
 
 import { useState } from "react";
-import { FlexSizingFeature } from "../flexSizingFeature";
+import { FlexSizingFeature } from "./flexSizingFeature";
 import { TableFilterInput } from "./TableFilterInput";
 import { ColumnConfiguration } from "./ColumnConfiguration";
 import { TableDisplay } from "./TableDisplay";
 import { SelectionActions } from "./SelectionActions";
+import { cellActionsFeature } from "./cellActionsFeature";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const TableContext = createContext<Table<unknown>>(undefined as any);
@@ -45,7 +46,7 @@ export const ReusableTable = <T,>({
   selectionActionsRenderer?: (selectedRowIds: string[]) => ReactNode;
 }) => {
   const table = useReactTable({
-    _features: [FlexSizingFeature],
+    _features: [FlexSizingFeature, cellActionsFeature],
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
